@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_my_anime">
+
+    <fragment
+        android:id="@+id/navigation_my_anime"
+        android:name="ml.hazyalex.aam.ui.my_anime.MyAnimeFragment"
+        android:label="@string/title_my_anime"
+        tools:layout="@layout/fragment_my_anime">
+        <action
+            android:id="@+id/action_navigation_my_anime_to_navigation_news"
+            app:destination="@id/navigation_news" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_news"
+        android:name="ml.hazyalex.aam.ui.news.NewsFragment"
+        android:label="@string/title_news"
+        tools:layout="@layout/fragment_news">
+        <action
+            android:id="@+id/action_navigation_news_to_navigation_search"
+            app:destination="@id/navigation_search" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_search"
+        android:name="ml.hazyalex.aam.ui.search.SearchFragment"
+        android:label="@string/title_search"
+        tools:layout="@layout/fragment_search" />
+</navigation>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="genres">
+        <item>All</item>
+        <item>Action</item>
+        <item>Adventure</item>
+        <item>Cars</item>
+        <item>Comedy</item>
+        <item>Dementia</item>
+        <item>Demons</item>
+        <item>Mystery</item>
+        <item>Drama</item>
+        <item>Ecchi</item>
+        <item>Fantasy</item>
+        <item>Game</item>
+        <item>Hentai</item>
+        <item>Historical</item>
+        <item>Horror</item>
+        <item>Kids</item>
+        <item>Magic</item>
+        <item>Martial Arts</item>
+        <item>Mecha</item>
+        <item>Music</item>
+        <item>Parody</item>
+        <item>Samurai</item>
+        <item>Romance</item>
+        <item>School</item>
+        <item>Sci Fi</item>
+        <item>Shoujo</item>
+        <item>Shoujo Ai</item>
+        <item>Shounen</item>
+        <item>Shounen Ai</item>
+        <item>Space</item>
+        <item>Sports</item>
+        <item>Super Power</item>
+        <item>Vampire</item>
+        <item>Yaoi</item>
+        <item>Yuri</item>
+        <item>Harem</item>
+        <item>Slice Of Life</item>
+        <item>Supernatural</item>
+        <item>Military</item>
+        <item>Police</item>
+        <item>Psychological</item>
+        <item>Thriller</item>
+        <item>Seinen</item>
+        <item>Josei</item>
+    </array>
+</resources>

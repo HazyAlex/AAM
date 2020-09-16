@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">AAM</string>
+    <string name="title_my_anime">My Anime</string>
+    <string name="title_news">News</string>
+    <string name="title_search">Search</string>
+    <string name="episodes">Episodes</string>
+    <string name="source">Source</string>
+    <string name="type">Type</string>
+    <string name="synopsis">Synopsis</string>
+    <string name="title">Title</string>
+    <string name="button_add_to_list">Add to list</string>
+    <string name="title_japanese">Title Japanese</string>
+    <string name="status">Status</string>
+    <string name="rating">Rating</string>
+    <string name="CustomListName">Name</string>
+    <string name="news_year">Year:</string>
+    <string name="news_season">Season:</string>
+    <string name="genres">Genres</string>
+    <string name="show_adult_content">Show Adult Content</string>
+    <string name="image_quality">Image Quality</string>
+    <string name="metered_network">Metered Network</string>
+    <string name="only_use_wifi">Only use WiFi</string>
+    <string name="lbl_genre">Genre:</string>
+    <string name="lbl_select_filters">Select filters which will be applied to your next search. To reset them press the \"Clear\" button.</string>
+    <string name="onlyUseWiFi">If toggled, only WiFi will be used.</string>
+    <string name="lbl_name">Name:</string>
+    <string name="lbl_color">Color:</string>
+</resources>
