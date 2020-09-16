@@ -9,6 +9,7 @@ import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.DecodeFormat
 import ml.hazyalex.aam.R
 
+
 fun loadImage(imageURL: String?, imageView: ImageView, context: Context) {
     val builder = Glide.with(context).load(imageURL)
         .placeholder(R.drawable.ic_launcher_foreground)

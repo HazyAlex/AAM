@@ -12,8 +12,6 @@ import kotlinx.android.synthetic.main.activity_anime_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import ml.hazyalex.aam.R
 import ml.hazyalex.aam.database.AnimeDB
 import ml.hazyalex.aam.model.*
@@ -23,7 +21,6 @@ import okhttp3.Response
 import java.io.IOException
 
 class AnimeDetailsActivity : AppCompatActivity() {
-    private var json: Json = Json(JsonConfiguration(ignoreUnknownKeys = true))
     private var selectedAnimeID: Long = 0
     private lateinit var customLists: List<CustomList>
     private lateinit var customListTitles: Array<String>
@@ -73,7 +70,7 @@ class AnimeDetailsActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call, response: Response) {
                 val jsonResponse = response.body?.string()!!
-                val anime = json.parse(Anime.serializer(), jsonResponse)
+                val anime = API.jsonParser.parse(Anime.serializer(), jsonResponse)
 
                 // We have an updated version now that we have the full data
                 anime.updated = true
@@ -102,8 +99,7 @@ class AnimeDetailsActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.anime_details_status).text = anime.status ?: ""
             findViewById<TextView>(R.id.anime_details_title_japanese).text = anime.title_japanese ?: ""
             findViewById<TextView>(R.id.anime_details_synopsis).text = anime.synopsis ?: unknownSynopsis
-            findViewById<TextView>(R.id.anime_details_episodes).text =
-                anime.episodes?.toString() ?: unknownField
+            findViewById<TextView>(R.id.anime_details_episodes).text = anime.episodes?.toString() ?: unknownField
             findViewById<TextView>(R.id.anime_details_source).text = anime.source ?: unknownField
             findViewById<TextView>(R.id.anime_details_type).text = anime.type ?: unknownField
             findViewById<TextView>(R.id.anime_details_rating).text = anime.rating ?: unknownField
@@ -119,8 +115,8 @@ class AnimeDetailsActivity : AppCompatActivity() {
             return
         }
 
-        val builder = AlertDialog.Builder(view.context)
-        val dialog = builder.setTitle("Add Anime to List")
+        val dialog = AlertDialog.Builder(view.context)
+            .setTitle("Add Anime to List")
             .setItems(customListTitles) { _, position: Int ->
                 CoroutineScope(Dispatchers.Default).launch {
                     val selectedListID = customLists[position].customListID

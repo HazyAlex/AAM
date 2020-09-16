@@ -30,8 +30,8 @@ import java.time.Year
 
 
 class NewsFragment : Fragment() {
-    private var json: Json = Json(JsonConfiguration(ignoreUnknownKeys = true))
     private lateinit var animeAdapter: MasonryAdapter
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -100,7 +100,7 @@ class NewsFragment : Fragment() {
                 }
 
                 val responseString = response.body?.string()!!
-                val season = json.parse(AnimeSeason.serializer(), responseString)
+                val season = API.jsonParser.parse(AnimeSeason.serializer(), responseString)
 
                 AnimeDB.getInstance(context!!).seasonDAO().insertSeasonWithAnime(season)
                 animeAdapter.addAnimeToView(activity, season.anime)

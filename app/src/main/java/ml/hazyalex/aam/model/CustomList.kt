@@ -3,6 +3,7 @@ package ml.hazyalex.aam.model
 import androidx.room.*
 import ml.hazyalex.aam.R
 
+
 @Entity
 data class CustomList(
     @PrimaryKey(autoGenerate = true)

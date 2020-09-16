@@ -1,5 +1,7 @@
 package ml.hazyalex.aam.model
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import okhttp3.Callback
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
@@ -7,6 +9,7 @@ import okhttp3.Request
 
 object API {
     private val client: OkHttpClient = OkHttpClient()
+    val jsonParser: Json = Json(JsonConfiguration(ignoreUnknownKeys = true))
 
     /**
      * GET https://api.jikan.moe/v3/season

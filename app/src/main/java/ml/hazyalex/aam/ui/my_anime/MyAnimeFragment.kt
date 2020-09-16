@@ -36,12 +36,12 @@ class MyAnimeFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_my_anime, container, false)
         (activity as AppCompatActivity?)?.supportActionBar?.show()
 
+        mAdapter = GalleryAdapter(activity)
+
         val mRecyclerView = root.findViewById(R.id.myanime_view) as RecyclerView
         mRecyclerView.layoutManager = GridLayoutManager(context, 3)
         mRecyclerView.setHasFixedSize(true)
         mRecyclerView.addItemDecoration(MarginItemDecoration())
-
-        mAdapter = GalleryAdapter(activity)
         mRecyclerView.adapter = mAdapter
 
         // Get the custom lists and show them
@@ -65,6 +65,12 @@ class MyAnimeFragment : Fragment() {
                 .setPositiveButton("OK") { _, _ ->
                     val selectedTitle = title.text.toString()
                     val selectedColor = spinner.selectedItem.toString()
+
+                    if (mAdapter.titleExists(selectedTitle)) {
+                        Toast.makeText(context, "The chosen name already exists!", Toast.LENGTH_LONG).show()
+                        return@setPositiveButton
+                    }
+
                     saveList(selectedTitle, selectedColor)
                 }.create().show()
         }
@@ -73,11 +79,6 @@ class MyAnimeFragment : Fragment() {
     }
 
     private fun saveList(selectedTitle: String, selectedColor: String) {
-        if (mAdapter.titleExists(selectedTitle)) {
-            Toast.makeText(context, "The chosen name already exists!", Toast.LENGTH_LONG).show()
-            return
-        }
-
         // Auto-generate ID, only used so we can store it in the DB
         val list = CustomList(title = selectedTitle, color = selectedColor)
 

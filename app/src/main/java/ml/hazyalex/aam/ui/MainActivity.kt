@@ -11,9 +11,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import ml.hazyalex.aam.R
-import okhttp3.OkHttpClient
-import java.util.logging.Level
-import java.util.logging.Logger
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,8 +28,6 @@ class MainActivity : AppCompatActivity() {
 
         val navView = findViewById<BottomNavigationView>(R.id.nav_view)
         navView.setupWithNavController(navController)
-
-        Logger.getLogger(OkHttpClient::class.java.name).level = Level.FINE
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

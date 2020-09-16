@@ -10,6 +10,7 @@ import ml.hazyalex.aam.R
 import ml.hazyalex.aam.model.ImageQuality
 import ml.hazyalex.aam.model.Settings
 
+
 class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

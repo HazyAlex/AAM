@@ -14,12 +14,12 @@ import ml.hazyalex.aam.model.CustomList
 import ml.hazyalex.aam.model.availableColors
 import ml.hazyalex.aam.ui.CustomListActivity
 
-class GalleryAdapter(
-    private val activity: FragmentActivity?,
-) : RecyclerView.Adapter<ItemView>() {
+
+class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Adapter<ItemView>() {
     private val titles: MutableList<String> = ArrayList()
     private val colors: MutableList<String> = ArrayList()
     private val customListIDs: MutableList<Int> = ArrayList()
+
 
     fun add(list: CustomList) {
         colors.add(list.color)

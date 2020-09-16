@@ -7,9 +7,11 @@ import androidx.room.RoomDatabase
 import ml.hazyalex.aam.model.*
 
 
-@Database(entities = [AnimeSeason::class, Anime::class, CustomList::class, CustomListAnimeCross::class],
+@Database(
+    entities = [AnimeSeason::class, Anime::class, CustomList::class, CustomListAnimeCross::class],
     version = 1,
-    exportSchema = false)
+    exportSchema = false
+)
 abstract class AnimeDB : RoomDatabase() {
     abstract fun animeDAO(): AnimeDAO
     abstract fun seasonDAO(): SeasonDAO

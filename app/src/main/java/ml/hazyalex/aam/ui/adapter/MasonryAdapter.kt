@@ -1,6 +1,5 @@
 package ml.hazyalex.aam.ui.adapter
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
@@ -17,15 +16,13 @@ import ml.hazyalex.aam.model.Settings
 import ml.hazyalex.aam.model.loadImageCentered
 import ml.hazyalex.aam.ui.AnimeDetailsActivity
 
-class MasonryAdapter(
-    private val context: Context,
-) : RecyclerView.Adapter<ItemView>() {
-    var ids: MutableList<Long> = ArrayList()
-    var titles: MutableList<String> = ArrayList()
-    var images: MutableList<String?> = ArrayList()
+class MasonryAdapter(private val context: Context) : RecyclerView.Adapter<ItemView>() {
+    private val ids: MutableList<Long> = ArrayList()
+    private val titles: MutableList<String> = ArrayList()
+    private val images: MutableList<String?> = ArrayList()
 
 
-    fun addAnimeToView(activity: Activity?, anime: List<Anime>) {
+    fun addAnimeToView(activity: FragmentActivity?, anime: List<Anime>) {
         anime.forEach {
             // TODO: Update the settings with PG13 etc with a spinner instead of bool
             if (Settings.getInstance(context).showAdultContent == false && it.adult != null && it.adult) {
@@ -36,17 +33,17 @@ class MasonryAdapter(
             images.add(it.image_url)
             ids.add(it.idMyAnimeList)
         }
-
-        activity?.runOnUiThread {
-            notifyDataSetChanged()
-        }
+        refresh(activity)
     }
 
     fun clearUI(activity: FragmentActivity?) {
         titles.clear()
         images.clear()
         ids.clear()
+        refresh(activity)
+    }
 
+    private fun refresh(activity: FragmentActivity?) {
         activity?.runOnUiThread {
             notifyDataSetChanged()
         }

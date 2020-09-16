@@ -30,7 +30,6 @@ import okhttp3.Response
 import java.io.IOException
 
 class SearchFragment : Fragment() {
-    private val json: Json = Json(JsonConfiguration(ignoreUnknownKeys = true))
     private lateinit var animeAdapter: MasonryAdapter
     var filterGenre: Int? = null
 
@@ -52,12 +51,11 @@ class SearchFragment : Fragment() {
         btnAdvancedSettings.setOnClickListener(AdvancedSettingsListener(this))
 
         // Get the UI ready to receive results
-        val animeView = root.findViewById(R.id.search_anime_view) as RecyclerView
+        animeAdapter = MasonryAdapter(requireContext())
 
+        val animeView = root.findViewById(R.id.search_anime_view) as RecyclerView
         animeView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         animeView.addItemDecoration(SpacesItemDecoration())
-
-        animeAdapter = MasonryAdapter(requireContext())
         animeView.adapter = animeAdapter
 
         return root
@@ -99,8 +97,8 @@ class SearchFragment : Fragment() {
                     return
                 }
 
-                val jsonResponse = json.parseJson(response.body?.string()!!).jsonObject
-                val results = json.fromJson(Anime.serializer().list, jsonResponse.getArray("results"))
+                val jsonResponse = API.jsonParser.parseJson(response.body?.string()!!).jsonObject
+                val results = API.jsonParser.fromJson(Anime.serializer().list, jsonResponse.getArray("results"))
 
                 if (results.isEmpty()) {
                     activity?.runOnUiThread {
