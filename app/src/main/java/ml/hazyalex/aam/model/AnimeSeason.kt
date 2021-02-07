@@ -8,7 +8,38 @@ import kotlinx.serialization.json.JsonInput
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.content
 import kotlinx.serialization.json.int
+import java.security.InvalidParameterException
+import java.text.DateFormat
+import java.time.Month
+import java.util.Calendar
+import kotlin.collections.ArrayList
 
+enum class Season {
+    Winter, Spring, Summer, Fall;
+
+    companion object {
+        fun getCurrentSeason(): Season {
+            val calendar = DateFormat.getDateInstance().calendar
+
+            when (calendar.get(Calendar.MONTH)) {
+                Month.DECEMBER.value, Month.JANUARY.value, Month.FEBRUARY.value -> {
+                    return Winter
+                }
+                Month.MARCH.value, Month.MAY.value -> {
+                    return Spring
+                }
+                Month.JUNE.value, Month.JULY.value, Month.AUGUST.value -> {
+                    return Summer
+                }
+                Month.SEPTEMBER.value, Month.NOVEMBER.value -> {
+                    return Fall
+                }
+            }
+
+            throw InvalidParameterException("Invalid Month!")
+        }
+    }
+}
 
 @Serializable(with = SeasonSerializer::class)
 @Entity(tableName = "seasons", primaryKeys = ["season_name", "season_year"])
@@ -36,6 +67,9 @@ class SeasonSerializer(
             ?: throw SerializationException("This class can be loaded only by Json")
         val tree = input.decodeJson() as? JsonObject
             ?: throw SerializationException("Expected JsonObject")
+
+        if (tree["season_name"] == null || tree["season_year"] == null || tree["season_name"]!!.isNull || tree["season_year"]!!.isNull)
+            throw SerializationException("Invalid season.")
 
         val seasonName = tree["season_name"]!!.content
         val seasonYear = tree["season_year"]!!.int
