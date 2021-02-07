@@ -2,6 +2,7 @@ package ml.hazyalex.aam.ui.search
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,9 +29,11 @@ import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
 import java.io.IOException
+import java.util.Locale
 
 class SearchFragment : Fragment() {
     private lateinit var animeAdapter: MasonryAdapter
+    private lateinit var searchView: SearchView
     var filterGenre: Int? = null
 
 
@@ -43,7 +46,7 @@ class SearchFragment : Fragment() {
         (activity as AppCompatActivity?)?.supportActionBar?.show()
 
         // Listen to search query's
-        val searchView: SearchView = root.findViewById(R.id.searchview_anime)
+        searchView = root.findViewById(R.id.searchview_anime)
         searchView.setOnQueryTextListener(TextListener(this))
 
         // Setup the advanced search options
@@ -84,16 +87,12 @@ class SearchFragment : Fragment() {
 
         API.search(parameters, object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                activity?.runOnUiThread {
-                    Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
-                }
+                showError(e.message)
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
-                    activity?.runOnUiThread {
-                        Toast.makeText(context, response.message.capitalize(), Toast.LENGTH_LONG).show()
-                    }
+                    showError(response.message.capitalize(Locale.ROOT))
                     return
                 }
 
@@ -101,9 +100,7 @@ class SearchFragment : Fragment() {
                 val results = API.jsonParser.fromJson(Anime.serializer().list, jsonResponse.getArray("results"))
 
                 if (results.isEmpty()) {
-                    activity?.runOnUiThread {
-                        Toast.makeText(context, "No results found.", Toast.LENGTH_LONG).show()
-                    }
+                    showError("No results found.")
                     return
                 }
 
@@ -113,7 +110,10 @@ class SearchFragment : Fragment() {
     }
 
     fun clearSearchResults() {
-        animeAdapter.clearUI(activity)
+        activity?.runOnUiThread {
+            animeAdapter.clearUI(activity)
+            searchView.clearFocus() // Prevent onQueryTextSubmit getting called twice
+        }
     }
 
     fun setActionBarTitle(title: String) {
@@ -175,5 +175,16 @@ class SearchFragment : Fragment() {
             return true
         }
     }
-}
 
+    private fun showError(message: String?) {
+        if (message == null) {
+            activity?.runOnUiThread {
+                Toast.makeText(context, "Error!", Toast.LENGTH_LONG).show()
+            }
+            return
+        }
+        activity?.runOnUiThread {
+            Toast.makeText(context, "Error: $message", Toast.LENGTH_LONG).show()
+        }
+    }
+}

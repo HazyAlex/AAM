@@ -5,6 +5,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import java.util.Locale
+import kotlin.Comparator
 
 @Serializable(with = AnimeSerializer::class)
 @Entity(tableName = "anime")
@@ -107,5 +109,31 @@ class AnimeSerializer(
 
     override fun serialize(encoder: Encoder, value: Anime) {
         error("Not implemented")
+    }
+}
+
+class AnimeSort: Comparator<Anime> {
+    private fun score(type: String): Int {
+        // tv, ova, movie, special, ona, music
+        return when (type.toLowerCase(Locale.ROOT)) {
+            "tv" -> Int.MIN_VALUE + 1
+            "special" -> Int.MIN_VALUE + 2
+            "ova" -> Int.MIN_VALUE + 3
+            "movie" -> Int.MIN_VALUE + 4
+            "ona" -> Int.MIN_VALUE + 5
+            "music" -> Int.MIN_VALUE + 6
+            else -> Int.MIN_VALUE + 7
+        }
+    }
+
+    // Order by Type -> Title
+    override fun compare(c1: Anime?, c2: Anime?): Int {
+        if (c1 == null || c2 == null) return 0
+
+        if (c1.type == c2.type) return c1.title.compareTo(c2.title)
+
+        if (c1.type == null) return -1
+        if (c2.type == null) return 1
+        return score(c1.type).compareTo(score(c2.type))
     }
 }

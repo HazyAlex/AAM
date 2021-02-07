@@ -13,13 +13,10 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.SerializationException
 import ml.hazyalex.aam.R
 import ml.hazyalex.aam.database.AnimeDB
-import ml.hazyalex.aam.model.API
-import ml.hazyalex.aam.model.AnimeSeason
-import ml.hazyalex.aam.model.Season
+import ml.hazyalex.aam.model.*
 import ml.hazyalex.aam.ui.adapter.MasonryAdapter
 import ml.hazyalex.aam.ui.adapter.SpacesItemDecoration
 import okhttp3.Call
@@ -27,6 +24,7 @@ import okhttp3.Callback
 import okhttp3.Response
 import java.io.IOException
 import java.time.Year
+import java.util.Locale
 
 
 class NewsFragment : Fragment() {
@@ -79,33 +77,38 @@ class NewsFragment : Fragment() {
             // If it's cached show the cached version
             Log.d("NEWS_FRAGMENT", "SHOWING CACHED VERSION")
 
-            animeAdapter.addAnimeToView(activity, animeList)
+            val anime = animeList.sortedWith(AnimeSort())
+
+            animeAdapter.addAnimeToView(activity, anime)
             return
         }
 
         // Otherwise we need to send a request!
         API.getAnimeCurrentSeason(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                activity?.runOnUiThread {
-                    Toast.makeText(context, e.message?.capitalize(), Toast.LENGTH_LONG).show()
-                }
+                showError(e.message?.capitalize(Locale.ROOT))
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
-                    activity?.runOnUiThread {
-                        Toast.makeText(context, "The service is down.", Toast.LENGTH_LONG).show()
-                    }
+                    showError(response.message)
                     return
                 }
 
-                val responseString = response.body?.string()!!
-                val season = API.jsonParser.parse(AnimeSeason.serializer(), responseString)
+                val season: AnimeSeason;
+                try {
+                    season = API.jsonParser.parse(AnimeSeason.serializer(), response.body?.string()!!)
+                } catch (e: SerializationException) {
+                    showError(e.message)
+                    return
+                }
 
                 AnimeDB.getInstance(context!!).seasonDAO().insertSeasonWithAnime(season)
-                animeAdapter.addAnimeToView(activity, season.anime)
+                val anime = season.anime.sortedWith(AnimeSort())
+
+                animeAdapter.addAnimeToView(activity, anime)
             }
-        })
+        }, yearToSearch, seasonToSearch)
     }
 
     private fun onSearchClicked(view: View?) {
@@ -120,17 +123,27 @@ class NewsFragment : Fragment() {
             }
 
         } catch (e: NumberFormatException) { // Can fail on parseInt or on the condition
-            activity?.runOnUiThread {
-                Toast.makeText(context, "Invalid year!", Toast.LENGTH_LONG).show()
-            }
+            showError("Invalid year!")
             return
         }
 
         val seasonSpinner = activity?.findViewById<Spinner>(R.id.news_season)!!
-        if (!seasonSpinner.isSelected) return
+        if (seasonSpinner.selectedItem == null) return
 
         CoroutineScope(Dispatchers.IO).launch {
             getAnime(seasonSpinner.selectedItem.toString(), selectedYear)
+        }
+    }
+
+    private fun showError(message: String?) {
+        if (message == null) {
+            activity?.runOnUiThread {
+                Toast.makeText(context, "Error!", Toast.LENGTH_LONG).show()
+            }
+            return
+        }
+        activity?.runOnUiThread {
+            Toast.makeText(context, "Error: $message", Toast.LENGTH_LONG).show()
         }
     }
 }

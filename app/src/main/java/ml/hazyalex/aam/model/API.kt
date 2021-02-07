@@ -6,17 +6,25 @@ import okhttp3.Callback
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.util.Locale
 
 object API {
     private val client: OkHttpClient = OkHttpClient()
     val jsonParser: Json = Json(JsonConfiguration(ignoreUnknownKeys = true))
 
     /**
-     * GET https://api.jikan.moe/v3/season
+     * GET https://api.jikan.moe/v3/season/{year}/{season}
      */
-    fun getAnimeCurrentSeason(callback: Callback) {
+    fun getAnimeCurrentSeason(callback: Callback, year: Int, season: String) {
+        val urlBuilder = HttpUrl.Builder()
+            .scheme("https").host("api.jikan.moe")
+            .addPathSegment("v3")
+            .addPathSegment("season")
+            .addPathSegment(year.toString())
+            .addPathSegment(season.toLowerCase(Locale.ROOT))
+
         val request: Request = Request.Builder()
-            .url("https://api.jikan.moe/v3/season")
+            .url(urlBuilder.build())
             .build()
 
         client.newCall(request).enqueue(callback)

@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ml.hazyalex.aam.R
 import ml.hazyalex.aam.database.AnimeDB
+import ml.hazyalex.aam.model.AnimeSort
 import ml.hazyalex.aam.ui.adapter.MasonryAdapter
 import ml.hazyalex.aam.ui.adapter.SpacesItemDecoration
 
@@ -35,7 +36,8 @@ class CustomListActivity : AppCompatActivity() {
                 .getCustomListWithAnime(selectedCustomListID)
                 ?: return@launch
 
-            animeAdapter.addAnimeToView(this@CustomListActivity, selectedCustomList.anime)
+            val anime = selectedCustomList.anime.sortedWith(AnimeSort())
+            animeAdapter.addAnimeToView(this@CustomListActivity, anime)
         }
     }
 }
