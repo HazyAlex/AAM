@@ -8,7 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_anime_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,11 +32,11 @@ class AnimeDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_anime_details)
 
-        setSupportActionBar(toolbar)
+        //setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         CoroutineScope(Dispatchers.IO).launch {
-            selectedAnimeID = intent.getLongExtra("ID", 0)
+            selectedAnimeID = intent.getLongExtra("ID", 0L)
             val selectedAnime = AnimeDB.getInstance(application).animeDAO().getAnime(selectedAnimeID)
 
             // If we don't have a record of the anime or if it's not updated, update it
@@ -70,7 +69,7 @@ class AnimeDetailsActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call, response: Response) {
                 val jsonResponse = response.body?.string()!!
-                val anime = API.jsonParser.parse(Anime.serializer(), jsonResponse)
+                val anime = API.jsonParser.decodeFromString(Anime.serializer(), jsonResponse)
 
                 // We have an updated version now that we have the full data
                 anime.updated = true

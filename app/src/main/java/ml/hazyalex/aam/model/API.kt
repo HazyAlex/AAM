@@ -10,7 +10,7 @@ import java.util.Locale
 
 object API {
     private val client: OkHttpClient = OkHttpClient()
-    val jsonParser: Json = Json(JsonConfiguration(ignoreUnknownKeys = true))
+    val jsonParser: Json = Json { ignoreUnknownKeys = true }
 
     /**
      * GET https://api.jikan.moe/v3/season/{year}/{season}
@@ -21,7 +21,7 @@ object API {
             .addPathSegment("v3")
             .addPathSegment("season")
             .addPathSegment(year.toString())
-            .addPathSegment(season.toLowerCase(Locale.ROOT))
+            .addPathSegment(season.lowercase(Locale.ROOT))
 
         val request: Request = Request.Builder()
             .url(urlBuilder.build())

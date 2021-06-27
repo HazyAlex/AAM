@@ -16,9 +16,8 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.builtins.list
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.*
 import ml.hazyalex.aam.R
 import ml.hazyalex.aam.model.API
 import ml.hazyalex.aam.model.Anime
@@ -96,8 +95,12 @@ class SearchFragment : Fragment() {
                     return
                 }
 
-                val jsonResponse = API.jsonParser.parseJson(response.body?.string()!!).jsonObject
-                val results = API.jsonParser.fromJson(Anime.serializer().list, jsonResponse.getArray("results"))
+                val jsonResponse = API.jsonParser.parseToJsonElement(response.body?.string()!!).jsonObject
+                jsonResponse.getValue("results").jsonArray
+                val results = API.jsonParser.decodeFromJsonElement(
+                    ListSerializer(Anime.serializer()),
+                    jsonResponse.getValue("results").jsonArray
+                )
 
                 if (results.isEmpty()) {
                     showError("No results found.")

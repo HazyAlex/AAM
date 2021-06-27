@@ -95,9 +95,9 @@ class NewsFragment : Fragment() {
                     return
                 }
 
-                val season: AnimeSeason;
+                val season: AnimeSeason
                 try {
-                    season = API.jsonParser.parse(AnimeSeason.serializer(), response.body?.string()!!)
+                    season = API.jsonParser.decodeFromString(AnimeSeason.serializer(), response.body?.string()!!)
                 } catch (e: SerializationException) {
                     showError(e.message)
                     return

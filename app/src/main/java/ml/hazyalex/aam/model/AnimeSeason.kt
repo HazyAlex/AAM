@@ -3,11 +3,18 @@ package ml.hazyalex.aam.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
-import kotlinx.serialization.*
-import kotlinx.serialization.json.JsonInput
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.content
-import kotlinx.serialization.json.int
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.Serializer
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.*
 import java.security.InvalidParameterException
 import java.text.DateFormat
 import java.time.Month
@@ -41,7 +48,7 @@ enum class Season {
     }
 }
 
-@Serializable(with = SeasonSerializer::class)
+@Serializable(with = AnimeSeasonSerializer::class)
 @Entity(tableName = "seasons", primaryKeys = ["season_name", "season_year"])
 data class AnimeSeason(
     @SerialName("season_name")
@@ -58,32 +65,24 @@ data class AnimeSeason(
 }
 
 
-@Serializer(forClass = AnimeSeason::class)
-class SeasonSerializer(
-    override val descriptor: SerialDescriptor,
-) : KSerializer<AnimeSeason> {
+object AnimeSeasonSerializer : KSerializer<AnimeSeason> {
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor("AnimeSeasonSerializer", PrimitiveKind.STRING)
+
     override fun deserialize(decoder: Decoder): AnimeSeason {
-        val input = decoder as? JsonInput
+        val input = decoder as? JsonDecoder
             ?: throw SerializationException("This class can be loaded only by Json")
-        val tree = input.decodeJson() as? JsonObject
+        val tree = input.decodeJsonElement() as? JsonObject
             ?: throw SerializationException("Expected JsonObject")
 
-        if (tree["season_name"] == null || tree["season_year"] == null || tree["season_name"]!!.isNull || tree["season_year"]!!.isNull)
+        if (tree["season_name"] == null || tree["season_year"] == null || tree["season_name"]!! is JsonNull || tree["season_year"]!! is JsonNull)
             throw SerializationException("Invalid season.")
 
-        val seasonName = tree["season_name"]!!.content
-        val seasonYear = tree["season_year"]!!.int
-        val animeJSON = tree.getArray("anime")
+        val seasonName = tree["season_name"]!!.jsonPrimitive.content
+        val seasonYear = tree["season_year"]!!.jsonPrimitive.int
 
-
-        // This fails on the library code as of 08/2020, I think it's because I'm using a custom serializer.
-        //val animeList = input.json.fromJson(Anime.serializer().list, tree.getArray("anime"))
-
-        val animeList = ArrayList<Anime>(animeJSON.size)
-        animeJSON.forEach {
-            val currentAnime = input.json.fromJson(Anime.serializer(), it)
-            animeList.add(currentAnime)
-        }
+        val animeJSON = tree.getValue("anime").jsonArray
+        val animeList = input.json.decodeFromJsonElement(ListSerializer(Anime.serializer()), animeJSON)
 
         return AnimeSeason(seasonName, seasonYear).also { it.anime = animeList }
     }

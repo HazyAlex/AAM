@@ -4,6 +4,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import java.util.Locale
 import kotlin.Comparator
@@ -69,26 +73,26 @@ data class Anime(
 @Serializer(forClass = Anime::class)
 class AnimeSerializer(
     // Throwing errors if left to null, this should be done automatically by the library?
-    override val descriptor: SerialDescriptor = SerialDescriptor(AnimeSerializer::class.toString()),
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor(AnimeSerializer::class.toString()),
 ) : KSerializer<Anime> {
     override fun deserialize(decoder: Decoder): Anime {
-        val input = decoder as? JsonInput
+        val input = decoder as? JsonDecoder
             ?: throw SerializationException("This class can be loaded only by Json")
-        val tree = input.decodeJson() as? JsonObject
+        val tree = input.decodeJsonElement() as? JsonObject
             ?: throw SerializationException("Expected JsonObject")
 
         return Anime(
-            idMyAnimeList = tree["mal_id"]!!.long,
-            title = tree["title"]!!.content,
-            title_japanese = tree["title_japanese"]?.contentOrNull,
-            image_url = tree["image_url"]?.contentOrNull,
-            synopsis = tree["synopsis"]?.contentOrNull,
-            type = tree["type"]?.contentOrNull,
-            status = tree["status"]?.contentOrNull,
-            episodes = tree["episodes"]?.intOrNull,
+            idMyAnimeList = tree["mal_id"]!!.jsonPrimitive.long,
+            title = tree["title"]!!.jsonPrimitive.content,
+            title_japanese = tree["title_japanese"]?.jsonPrimitive?.contentOrNull,
+            image_url = tree["image_url"]?.jsonPrimitive?.contentOrNull,
+            synopsis = tree["synopsis"]?.jsonPrimitive?.contentOrNull,
+            type = tree["type"]?.jsonPrimitive?.contentOrNull,
+            status = tree["status"]?.jsonPrimitive?.contentOrNull,
+            episodes = tree["episodes"]?.jsonPrimitive?.intOrNull,
             genres = tree["genres"]?.jsonArray?.run {
                 val str = StringBuilder()
-                this.forEach { str.append(it.jsonObject["name"]?.contentOrNull).append(", ") }
+                this.forEach { str.append(it.jsonObject["name"]?.jsonPrimitive?.contentOrNull).append(", ") }
 
                 if (str.lastIndex > 2) {
                     // Delete the last ", "
@@ -99,11 +103,11 @@ class AnimeSerializer(
                     null
                 }
             },
-            adult = tree["r18"]?.booleanOrNull ?: false,
-            kids = tree["kids"]?.booleanOrNull ?: false,
-            source = tree["source"]?.contentOrNull,
-            rating = tree["rating"]?.contentOrNull,
-            score = tree["score"]?.floatOrNull
+            adult = tree["r18"]?.jsonPrimitive?.booleanOrNull ?: false,
+            kids = tree["kids"]?.jsonPrimitive?.booleanOrNull ?: false,
+            source = tree["source"]?.jsonPrimitive?.contentOrNull,
+            rating = tree["rating"]?.jsonPrimitive?.contentOrNull,
+            score = tree["score"]?.jsonPrimitive?.floatOrNull
         )
     }
 
@@ -115,7 +119,7 @@ class AnimeSerializer(
 class AnimeSort: Comparator<Anime> {
     private fun score(type: String): Int {
         // tv, ova, movie, special, ona, music
-        return when (type.toLowerCase(Locale.ROOT)) {
+        return when (type.lowercase(Locale.ROOT)) {
             "tv" -> Int.MIN_VALUE + 1
             "special" -> Int.MIN_VALUE + 2
             "ova" -> Int.MIN_VALUE + 3
