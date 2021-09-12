@@ -4,6 +4,12 @@ import androidx.room.*
 import ml.hazyalex.aam.R
 
 
+val availableColors: Map<String, Int> = hashMapOf(
+    "Black" to R.color.Black, "White" to R.color.White,
+    "Red" to R.color.Red, "Green" to R.color.Green, "Blue" to R.color.Blue
+)
+
+
 @Entity
 data class CustomList(
     @PrimaryKey(autoGenerate = true)
@@ -11,11 +17,6 @@ data class CustomList(
 
     val title: String,
     val color: String,
-)
-
-val availableColors: Map<String, Int> = hashMapOf(
-    "Black" to R.color.Black, "White" to R.color.White,
-    "Red" to R.color.Red, "Green" to R.color.Green, "Blue" to R.color.Blue
 )
 
 

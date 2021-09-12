@@ -93,7 +93,7 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
                     }
                 }.create().show()
 
-            true
+            true // Return true if it was handled correctly
         }
 
         return ItemView(layoutView)

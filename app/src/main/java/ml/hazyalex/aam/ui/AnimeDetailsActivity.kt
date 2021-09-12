@@ -5,9 +5,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.google.android.material.appbar.AppBarLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -89,20 +92,34 @@ class AnimeDetailsActivity : AppCompatActivity() {
         })
     }
 
+    private fun setVisibleWith(id: Int, text: String) {
+        val textView = findViewById<TextView>(id) ?: error("not found.")
+        textView.text = text
+        textView.visibility = View.VISIBLE
+    }
+
+    private fun setLayoutVisible() {
+        findViewById<ConstraintLayout>(R.id.anime_details_loading).visibility = View.INVISIBLE
+        findViewById<LinearLayout>(R.id.anime_details_layout).visibility = View.VISIBLE
+        findViewById<AppBarLayout>(R.id.anime_details_app_bar).visibility = View.VISIBLE
+    }
+
     private fun addToUI(anime: Anime) {
         runOnUiThread {
             val header = findViewById<ImageView>(R.id.header)
             loadImage(anime.image_url, header, applicationContext)
 
-            findViewById<TextView>(R.id.anime_details_title).text = anime.title
-            findViewById<TextView>(R.id.anime_details_status).text = anime.status ?: ""
-            findViewById<TextView>(R.id.anime_details_title_japanese).text = anime.title_japanese ?: ""
-            findViewById<TextView>(R.id.anime_details_synopsis).text = anime.synopsis ?: unknownSynopsis
-            findViewById<TextView>(R.id.anime_details_episodes).text = anime.episodes?.toString() ?: unknownField
-            findViewById<TextView>(R.id.anime_details_source).text = anime.source ?: unknownField
-            findViewById<TextView>(R.id.anime_details_type).text = anime.type ?: unknownField
-            findViewById<TextView>(R.id.anime_details_rating).text = anime.rating ?: unknownField
-            findViewById<TextView>(R.id.anime_details_genres).text = anime.genres ?: unknownField
+            setVisibleWith(R.id.anime_details_title, anime.title)
+            setVisibleWith(R.id.anime_details_status, anime.status ?: "")
+            setVisibleWith(R.id.anime_details_title_japanese, anime.title_japanese ?: "")
+            setVisibleWith(R.id.anime_details_synopsis, anime.synopsis ?: unknownSynopsis)
+            setVisibleWith(R.id.anime_details_episodes, anime.episodes?.toString() ?: unknownField)
+            setVisibleWith(R.id.anime_details_source, anime.source ?: unknownField)
+            setVisibleWith(R.id.anime_details_type, anime.type ?: unknownField)
+            setVisibleWith(R.id.anime_details_rating, anime.rating ?: unknownField)
+            setVisibleWith(R.id.anime_details_genres, anime.genres ?: unknownField)
+
+            setLayoutVisible()
         }
     }
 
