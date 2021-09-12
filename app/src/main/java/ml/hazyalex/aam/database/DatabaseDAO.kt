@@ -9,6 +9,10 @@ interface CustomListDAO {
     @Insert
     fun insert(list: CustomList)
 
+    @Transaction
+    @Query("DELETE FROM customlist WHERE customListID = :customListID")
+    fun remove(customListID: Int): Int
+
     @Query("SELECT * FROM customlist")
     fun getAll(): List<CustomList>
 

@@ -1,5 +1,6 @@
 package ml.hazyalex.aam.ui.adapter
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Rect
 import android.util.Log
@@ -9,7 +10,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ml.hazyalex.aam.R
+import ml.hazyalex.aam.database.AnimeDB
 import ml.hazyalex.aam.model.CustomList
 import ml.hazyalex.aam.model.availableColors
 import ml.hazyalex.aam.ui.CustomListActivity
@@ -37,6 +42,14 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
         refresh()
     }
 
+    fun remove(index: Int) {
+        colors.removeAt(index)
+        titles.removeAt(index)
+        customListIDs.removeAt(index)
+
+        refresh()
+    }
+
     private fun refresh() {
         activity?.runOnUiThread {
             notifyDataSetChanged()
@@ -58,6 +71,29 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
             val intent = Intent(activity?.applicationContext, CustomListActivity::class.java)
             intent.putExtra("ID", customListID)
             activity?.startActivity(intent)
+        }
+
+        // Ask the user if they want to delete the item on a long press
+        layoutView.setOnLongClickListener {
+            AlertDialog.Builder(parent.context).setTitle("Do you want to remove this list?")
+                .setPositiveButton("OK") { _, _ ->
+                    // We need the ID of the custom list so we can remove it from the database,
+                    //  and we also need the index of the item so we that we can remove it from the view.
+                    val textView = it.findViewById(R.id.item_text) as TextView
+                    val index = textView.tag as Int
+
+                    val customListID = customListIDs[index]
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val deletedRows = AnimeDB.getInstance(parent.context).customListDAO().remove(customListID)
+
+                        if (deletedRows > 0) {
+                            remove(index)
+                        }
+                    }
+                }.create().show()
+
+            true
         }
 
         return ItemView(layoutView)
