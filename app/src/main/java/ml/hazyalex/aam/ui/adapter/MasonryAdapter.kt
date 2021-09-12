@@ -24,8 +24,12 @@ class MasonryAdapter(private val context: Context) : RecyclerView.Adapter<ItemVi
 
     fun addAnimeToView(activity: FragmentActivity?, anime: List<Anime>) {
         anime.forEach {
-            // TODO: Update the settings with PG13 etc with a spinner instead of bool
-            if (Settings.getInstance(context).showAdultContent == false && it.adult != null && it.adult) {
+            val canSeeAdultContent = Settings.getInstance(context).showAdultContent
+
+            val isAdult = it.adult != null && it.adult
+            val hasAdultRating = it.rating != null && it.rating.contains("Rx")
+
+            if (!canSeeAdultContent && (isAdult || hasAdultRating)) {
                 return@forEach
             }
 

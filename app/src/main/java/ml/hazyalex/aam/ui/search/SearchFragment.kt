@@ -78,7 +78,6 @@ class SearchFragment : Fragment() {
         //   ...    genre, order_by, sort
         val parameters: HashMap<String, String> = HashMap(2)
         parameters["q"] = keyword
-        parameters["rated"] = if (Settings.getInstance(requireContext()).showAdultContent) "rx" else "pg13"
         if (filterGenre != null) {
             parameters["genre"] = filterGenre.toString()
         }
@@ -96,7 +95,7 @@ class SearchFragment : Fragment() {
                 }
 
                 val jsonResponse = API.jsonParser.parseToJsonElement(response.body?.string()!!).jsonObject
-                jsonResponse.getValue("results").jsonArray
+
                 val results = API.jsonParser.decodeFromJsonElement(
                     ListSerializer(Anime.serializer()),
                     jsonResponse.getValue("results").jsonArray

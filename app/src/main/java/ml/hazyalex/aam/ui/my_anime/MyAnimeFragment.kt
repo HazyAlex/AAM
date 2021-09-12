@@ -49,8 +49,7 @@ class MyAnimeFragment : Fragment() {
             mAdapter.add(AnimeDB.getInstance(requireContext()).customListDAO().getAll())
         }
 
-
-        // Floating action -> Create and save new Custom List
+        // Floating action -> Create and save a new Custom List
         root.findViewById<View>(R.id.fab).setOnClickListener {
             val view = inflater.inflate(R.layout.dialog_new_list, null)
 

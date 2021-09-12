@@ -136,7 +136,7 @@ class AnimeDetailsActivity : AppCompatActivity() {
                         CustomListAnimeCross(selectedListID, selectedAnimeID)
                     )
                     runOnUiThread {
-                        Toast.makeText(view.context, "Success!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(view.context, "Added successfully!", Toast.LENGTH_LONG).show()
                     }
                 }
             }

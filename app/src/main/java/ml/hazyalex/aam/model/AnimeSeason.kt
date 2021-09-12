@@ -9,9 +9,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
@@ -65,9 +63,9 @@ data class AnimeSeason(
 }
 
 
+@Serializer(forClass = AnimeSeason::class)
 object AnimeSeasonSerializer : KSerializer<AnimeSeason> {
-    override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor("AnimeSeasonSerializer", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor(AnimeSeasonSerializer::class.toString())
 
     override fun deserialize(decoder: Decoder): AnimeSeason {
         val input = decoder as? JsonDecoder

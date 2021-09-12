@@ -71,15 +71,20 @@ data class Anime(
 
 
 @Serializer(forClass = Anime::class)
-class AnimeSerializer(
-    // Throwing errors if left to null, this should be done automatically by the library?
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor(AnimeSerializer::class.toString()),
-) : KSerializer<Anime> {
+object AnimeSerializer : KSerializer<Anime> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor(AnimeSerializer::class.toString())
+
     override fun deserialize(decoder: Decoder): Anime {
         val input = decoder as? JsonDecoder
             ?: throw SerializationException("This class can be loaded only by Json")
         val tree = input.decodeJsonElement() as? JsonObject
             ?: throw SerializationException("Expected JsonObject")
+
+        // The rating could come from the "rating" or "rated" (e.g. search) field.
+        var rating = tree["rating"]?.jsonPrimitive?.contentOrNull
+        if (rating == null) {
+            rating = tree["rated"]?.jsonPrimitive?.contentOrNull
+        }
 
         return Anime(
             idMyAnimeList = tree["mal_id"]!!.jsonPrimitive.long,
@@ -106,7 +111,7 @@ class AnimeSerializer(
             adult = tree["r18"]?.jsonPrimitive?.booleanOrNull ?: false,
             kids = tree["kids"]?.jsonPrimitive?.booleanOrNull ?: false,
             source = tree["source"]?.jsonPrimitive?.contentOrNull,
-            rating = tree["rating"]?.jsonPrimitive?.contentOrNull,
+            rating = rating,
             score = tree["score"]?.jsonPrimitive?.floatOrNull
         )
     }
