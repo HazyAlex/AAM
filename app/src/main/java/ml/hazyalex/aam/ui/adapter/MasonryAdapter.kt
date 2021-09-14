@@ -1,5 +1,7 @@
 package ml.hazyalex.aam.ui.adapter
 
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
@@ -10,19 +12,27 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ml.hazyalex.aam.R
+import ml.hazyalex.aam.database.AnimeDB
 import ml.hazyalex.aam.model.Anime
 import ml.hazyalex.aam.model.Settings
 import ml.hazyalex.aam.model.loadImageCentered
 import ml.hazyalex.aam.ui.AnimeDetailsActivity
 
-class MasonryAdapter(private val context: Context) : RecyclerView.Adapter<ItemView>() {
+class MasonryAdapter(
+    private val context: Context,
+) : RecyclerView.Adapter<ItemView>() {
+    var onLongPressListener: ((View?) -> Boolean)? = null
+
     private val ids: MutableList<Long> = ArrayList()
     private val titles: MutableList<String> = ArrayList()
     private val images: MutableList<String?> = ArrayList()
 
 
-    fun addAnimeToView(activity: FragmentActivity?, anime: List<Anime>) {
+    fun add(activity: FragmentActivity?, anime: List<Anime>) {
         anime.forEach {
             val canSeeAdultContent = Settings.getInstance(context).showAdultContent
 
@@ -37,13 +47,29 @@ class MasonryAdapter(private val context: Context) : RecyclerView.Adapter<ItemVi
             images.add(it.image_url)
             ids.add(it.idMyAnimeList)
         }
+
         refresh(activity)
+    }
+
+    fun remove(view: View, index: Int) {
+        ids.removeAt(index)
+        titles.removeAt(index)
+        images.removeAt(index)
+
+        view.post {
+            notifyItemRemoved(index)
+        }
+    }
+
+    fun getID(index: Int): Long {
+        return ids[index]
     }
 
     fun clearUI(activity: FragmentActivity?) {
         titles.clear()
         images.clear()
         ids.clear()
+
         refresh(activity)
     }
 
@@ -64,6 +90,10 @@ class MasonryAdapter(private val context: Context) : RecyclerView.Adapter<ItemVi
             val intent = Intent(context, AnimeDetailsActivity::class.java)
             intent.putExtra("ID", animeID)
             context.startActivity(intent)
+        }
+
+        if (onLongPressListener != null) {
+            layoutView.setOnLongClickListener(onLongPressListener)
         }
 
         return ItemView(layoutView)

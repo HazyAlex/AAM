@@ -1,6 +1,8 @@
 package ml.hazyalex.aam.ui
 
+import android.app.AlertDialog
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -31,13 +33,37 @@ class CustomListActivity : AppCompatActivity() {
         val selectedCustomListID = intent.getIntExtra("ID", 0)
         if (selectedCustomListID == 0) return
 
+        animeAdapter.onLongPressListener = {
+            AlertDialog.Builder(this)
+                .setTitle("Do you want to remove this entry?")
+                .setPositiveButton("OK") { _, _ ->
+                    val textView = it?.findViewById(R.id.item_text) as TextView
+                    val index = textView.tag as Int
+
+                    val animeID = animeAdapter.getID(index)
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val deletedRows = AnimeDB.getInstance(applicationContext)
+                            .customListDAO()
+                            .deleteAnime(selectedCustomListID, animeID)
+
+                        if (deletedRows > 0) {
+                            animeAdapter.remove(it, index)
+                        }
+                    }
+                }.create().show()
+
+            true // Return true if it was handled correctly
+        }
+
         CoroutineScope(Dispatchers.IO).launch {
-            val selectedCustomList = AnimeDB.getInstance(applicationContext).customListDAO()
+            val selectedCustomList = AnimeDB.getInstance(applicationContext)
+                .customListDAO()
                 .getCustomListWithAnime(selectedCustomListID)
                 ?: return@launch
 
             val anime = selectedCustomList.anime.sortedWith(AnimeSort())
-            animeAdapter.addAnimeToView(this@CustomListActivity, anime)
+            animeAdapter.add(this@CustomListActivity, anime)
         }
     }
 }

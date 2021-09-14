@@ -30,6 +30,7 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
         colors.add(list.color)
         titles.add(list.title)
         customListIDs.add(list.customListID)
+
         refresh()
     }
 
@@ -39,6 +40,7 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
             titles.add(it.title)
             customListIDs.add(it.customListID)
         }
+
         refresh()
     }
 
@@ -47,7 +49,9 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
         titles.removeAt(index)
         customListIDs.removeAt(index)
 
-        refresh()
+        activity?.runOnUiThread {
+            notifyItemChanged(index)
+        }
     }
 
     private fun refresh() {
@@ -85,7 +89,9 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
                     val customListID = customListIDs[index]
 
                     CoroutineScope(Dispatchers.IO).launch {
-                        val deletedRows = AnimeDB.getInstance(parent.context).customListDAO().remove(customListID)
+                        val deletedRows = AnimeDB.getInstance(parent.context)
+                            .customListDAO()
+                            .delete(customListID)
 
                         if (deletedRows > 0) {
                             remove(index)

@@ -35,10 +35,10 @@ class AnimeDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_anime_details)
 
-        //setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         CoroutineScope(Dispatchers.IO).launch {
+            // An ID of '0' will never exist, we can safely use it as a null value.
             selectedAnimeID = intent.getLongExtra("ID", 0L)
             val selectedAnime = AnimeDB.getInstance(application).animeDAO().getAnime(selectedAnimeID)
 
@@ -57,39 +57,6 @@ class AnimeDetailsActivity : AppCompatActivity() {
             customLists = AnimeDB.getInstance(applicationContext).customListDAO().getAll()
             customListTitles = Array(customLists.size, init = { customLists[it].title })
         }
-    }
-
-    private fun getAnimeDetails(season_name: String?, season_year: Int?) {
-        API.getAnimeDetails(selectedAnimeID, object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("DETAILS_ANIME_ERROR_STACK", e.printStackTrace().toString())
-                Log.e("DETAILS_ANIME_ERROR_MESSAGE", e.message.toString())
-
-                runOnUiThread {
-                    Toast.makeText(applicationContext, e.message, Toast.LENGTH_LONG).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val jsonResponse = response.body?.string()!!
-                val anime = API.jsonParser.decodeFromString(Anime.serializer(), jsonResponse)
-
-                // We have an updated version now that we have the full data
-                anime.updated = true
-                anime.season_year = season_year
-                anime.season_name = season_name
-
-                if (season_name != null && season_year != null) {
-                    Log.d("DETAILS_ANIME_ACTIVITY", "UPDATING $selectedAnimeID")
-                    AnimeDB.getInstance(applicationContext).animeDAO().update(anime)
-                } else {
-                    Log.d("DETAILS_ANIME_ACTIVITY", "CREATING $selectedAnimeID")
-                    AnimeDB.getInstance(applicationContext).animeDAO().insert(anime)
-                }
-
-                addToUI(anime)
-            }
-        })
     }
 
     private fun setVisibleWith(id: Int, text: String) {
@@ -160,5 +127,38 @@ class AnimeDetailsActivity : AppCompatActivity() {
 
         dialog.create()
         dialog.show()
+    }
+
+    private fun getAnimeDetails(season_name: String?, season_year: Int?) {
+        API.getAnimeDetails(selectedAnimeID, object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("DETAILS_ANIME_ERROR_STACK", e.printStackTrace().toString())
+                Log.e("DETAILS_ANIME_ERROR_MESSAGE", e.message.toString())
+
+                runOnUiThread {
+                    Toast.makeText(applicationContext, e.message, Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val jsonResponse = response.body?.string()!!
+                val anime = API.jsonParser.decodeFromString(Anime.serializer(), jsonResponse)
+
+                // We have an updated version now that we have the full data
+                anime.updated = true
+                anime.season_year = season_year
+                anime.season_name = season_name
+
+                if (season_name != null && season_year != null) {
+                    Log.d("DETAILS_ANIME_ACTIVITY", "UPDATING $selectedAnimeID")
+                    AnimeDB.getInstance(applicationContext).animeDAO().update(anime)
+                } else {
+                    Log.d("DETAILS_ANIME_ACTIVITY", "CREATING $selectedAnimeID")
+                    AnimeDB.getInstance(applicationContext).animeDAO().insert(anime)
+                }
+
+                addToUI(anime)
+            }
+        })
     }
 }

@@ -106,7 +106,7 @@ class SearchFragment : Fragment() {
                     return
                 }
 
-                animeAdapter.addAnimeToView(activity, results)
+                animeAdapter.add(activity, results)
             }
         })
     }

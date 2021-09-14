@@ -23,6 +23,7 @@ data class CustomList(
 @Entity(primaryKeys = ["customListID", "anime_id"])
 data class CustomListAnimeCross(
     val customListID: Int,
+
     @ColumnInfo(name = "anime_id")
     val animeID: Long,
 )

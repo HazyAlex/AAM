@@ -11,7 +11,11 @@ interface CustomListDAO {
 
     @Transaction
     @Query("DELETE FROM customlist WHERE customListID = :customListID")
-    fun remove(customListID: Int): Int
+    fun delete(customListID: Int): Int
+
+    @Transaction
+    @Query("DELETE FROM customlistanimecross WHERE customListID = :customListID AND anime_id = :animeID")
+    fun deleteAnime(customListID: Int, animeID: Long): Int
 
     @Query("SELECT * FROM customlist")
     fun getAll(): List<CustomList>

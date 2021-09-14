@@ -46,7 +46,8 @@ class MyAnimeFragment : Fragment() {
 
         // Get the custom lists and show them
         CoroutineScope(Dispatchers.IO).launch {
-            mAdapter.add(AnimeDB.getInstance(requireContext()).customListDAO().getAll())
+            val customLists = AnimeDB.getInstance(requireContext()).customListDAO().getAll()
+            mAdapter.add(customLists)
         }
 
         // Floating action -> Create and save a new Custom List

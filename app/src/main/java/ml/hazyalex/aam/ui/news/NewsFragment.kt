@@ -79,7 +79,7 @@ class NewsFragment : Fragment() {
 
             val anime = animeList.sortedWith(AnimeSort())
 
-            animeAdapter.addAnimeToView(activity, anime)
+            animeAdapter.add(activity, anime)
             return
         }
 
@@ -106,7 +106,7 @@ class NewsFragment : Fragment() {
                 AnimeDB.getInstance(context!!).seasonDAO().insertSeasonWithAnime(season)
                 val anime = season.anime.sortedWith(AnimeSort())
 
-                animeAdapter.addAnimeToView(activity, anime)
+                animeAdapter.add(activity, anime)
             }
         }, yearToSearch, seasonToSearch)
     }
