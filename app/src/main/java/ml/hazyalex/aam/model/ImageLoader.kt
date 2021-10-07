@@ -38,7 +38,7 @@ private fun loadImage(builder: RequestBuilder<Drawable>, imageView: ImageView, c
     }
 
     if (settings.meteredNetwork && !isWifiAvailable(context)) {
-        Log.d("WiFi", "Using the cached version.")
+        Log.d("AAM", "WiFi - Using the cached version.")
         builder = builder.onlyRetrieveFromCache(true)
     }
 

@@ -21,9 +21,11 @@ import ml.hazyalex.aam.ui.CustomListActivity
 
 
 class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Adapter<ItemView>() {
+    var onLongPressListener: ((View?) -> Boolean)? = null
+
     private val titles: MutableList<String> = ArrayList()
     private val colors: MutableList<String> = ArrayList()
-    private val customListIDs: MutableList<Int> = ArrayList()
+    private val customListIDs: MutableList<Long> = ArrayList()
 
 
     fun add(list: CustomList) {
@@ -31,7 +33,9 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
         titles.add(list.title)
         customListIDs.add(list.customListID)
 
-        refresh()
+        activity?.runOnUiThread {
+            notifyItemInserted(customListIDs.size)
+        }
     }
 
     fun add(list: List<CustomList>) {
@@ -41,22 +45,20 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
             customListIDs.add(it.customListID)
         }
 
-        refresh()
+        activity?.runOnUiThread {
+            notifyItemRangeInserted(0, list.size)
+        }
     }
 
-    fun remove(index: Int) {
+    fun remove(customListID: Long) {
+        val index = customListIDs.indexOf(customListID)
+
         colors.removeAt(index)
         titles.removeAt(index)
         customListIDs.removeAt(index)
 
         activity?.runOnUiThread {
-            notifyItemChanged(index)
-        }
-    }
-
-    private fun refresh() {
-        activity?.runOnUiThread {
-            notifyDataSetChanged()
+            notifyItemRemoved(index)
         }
     }
 
@@ -70,36 +72,15 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
 
         layoutView.setOnClickListener {
             val textView = it.findViewById(R.id.item_text) as TextView
-            val customListID = customListIDs[textView.tag as Int].or(0)
+            val customListID = customListIDs[textView.tag as Int]
 
             val intent = Intent(activity?.applicationContext, CustomListActivity::class.java)
             intent.putExtra("ID", customListID)
             activity?.startActivity(intent)
         }
 
-        // Ask the user if they want to delete the item on a long press
-        layoutView.setOnLongClickListener {
-            AlertDialog.Builder(parent.context).setTitle("Do you want to remove this list?")
-                .setPositiveButton("OK") { _, _ ->
-                    // We need the ID of the custom list so we can remove it from the database,
-                    //  and we also need the index of the item so we that we can remove it from the view.
-                    val textView = it.findViewById(R.id.item_text) as TextView
-                    val index = textView.tag as Int
-
-                    val customListID = customListIDs[index]
-
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val deletedRows = AnimeDB.getInstance(parent.context)
-                            .customListDAO()
-                            .delete(customListID)
-
-                        if (deletedRows > 0) {
-                            remove(index)
-                        }
-                    }
-                }.create().show()
-
-            true // Return true if it was handled correctly
+        if (onLongPressListener != null) {
+            layoutView.setOnLongClickListener(onLongPressListener)
         }
 
         return ItemView(layoutView)
@@ -107,7 +88,7 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
 
     override fun getItemCount(): Int {
         if (titles.size != customListIDs.size || titles.size != colors.size) {
-            Log.d("GALLERY_ADAPTER", "Different list sizes! Information might be lost.")
+            Log.d("AAM", "Different list sizes! Information might be lost.")
         }
 
         return titles.size
@@ -116,9 +97,10 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
     override fun onBindViewHolder(holder: ItemView, position: Int) {
         val color = availableColors[colors[position]] ?: error("Invalid color.")
         val name = titles.elementAtOrElse(position) { error("Invalid name.") }
+        val id = customListIDs.elementAtOrElse(position) { error("Invalid ID.") }
 
         holder.imageView.setImageResource(color)
-        holder.textView.tag = position
+        holder.textView.tag = id
         holder.textView.text = name
     }
 }

@@ -75,7 +75,7 @@ class NewsFragment : Fragment() {
 
         if (animeList.isNotEmpty()) {
             // If it's cached show the cached version
-            Log.d("NEWS_FRAGMENT", "SHOWING CACHED VERSION")
+            Log.d("AAM", "NEWS_FRAGMENT - SHOWING CACHED VERSION")
 
             val anime = animeList.sortedWith(AnimeSort())
 

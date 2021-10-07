@@ -49,7 +49,7 @@ class AnimeDetailsActivity : AppCompatActivity() {
             }
 
             // Otherwise show the cached version
-            Log.d("DETAILS_ANIME_ACTIVITY", "SHOWING CACHED VERSION")
+            Log.d("AAM", "DETAILS_ANIME_ACTIVITY - SHOWING CACHED VERSION")
             addToUI(selectedAnime)
         }
 
@@ -92,13 +92,14 @@ class AnimeDetailsActivity : AppCompatActivity() {
 
     fun addToList(view: View) {
         if (customListTitles.isEmpty()) {
-            AlertDialog.Builder(view.context).setTitle("There are no custom lists available.")
+            AlertDialog.Builder(view.context)
+                .setTitle("There are no custom lists available.")
                 .setMessage("") // So we can have some padding below the title
                 .create().show()
             return
         }
 
-        val dialog = AlertDialog.Builder(view.context)
+        AlertDialog.Builder(view.context)
             .setTitle("Add Anime to List")
             .setItems(customListTitles) { _, position: Int ->
                 CoroutineScope(Dispatchers.Default).launch {
@@ -119,21 +120,19 @@ class AnimeDetailsActivity : AppCompatActivity() {
                     AnimeDB.getInstance(view.context).customListDAO().insert(
                         CustomListAnimeCross(selectedListID, selectedAnimeID)
                     )
+
                     runOnUiThread {
                         Toast.makeText(view.context, "Added successfully!", Toast.LENGTH_LONG).show()
                     }
                 }
-            }
-
-        dialog.create()
-        dialog.show()
+            }.create().show()
     }
 
     private fun getAnimeDetails(season_name: String?, season_year: Int?) {
         API.getAnimeDetails(selectedAnimeID, object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("DETAILS_ANIME_ERROR_STACK", e.printStackTrace().toString())
-                Log.e("DETAILS_ANIME_ERROR_MESSAGE", e.message.toString())
+                val stackTrace = e.printStackTrace().toString()
+                Log.e("AAM", "DETAILS_ANIME_ERROR_STACK:\n$stackTrace")
 
                 runOnUiThread {
                     Toast.makeText(applicationContext, e.message, Toast.LENGTH_LONG).show()
@@ -150,10 +149,10 @@ class AnimeDetailsActivity : AppCompatActivity() {
                 anime.season_name = season_name
 
                 if (season_name != null && season_year != null) {
-                    Log.d("DETAILS_ANIME_ACTIVITY", "UPDATING $selectedAnimeID")
+                    Log.d("AAM", "DETAILS_ANIME_ACTIVITY - UPDATING $selectedAnimeID")
                     AnimeDB.getInstance(applicationContext).animeDAO().update(anime)
                 } else {
-                    Log.d("DETAILS_ANIME_ACTIVITY", "CREATING $selectedAnimeID")
+                    Log.d("AAM", "DETAILS_ANIME_ACTIVITY - CREATING $selectedAnimeID")
                     AnimeDB.getInstance(applicationContext).animeDAO().insert(anime)
                 }
 

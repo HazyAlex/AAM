@@ -30,8 +30,8 @@ class CustomListActivity : AppCompatActivity() {
         animeView.addItemDecoration(SpacesItemDecoration())
         animeView.adapter = animeAdapter
 
-        val selectedCustomListID = intent.getIntExtra("ID", 0)
-        if (selectedCustomListID == 0) return
+        val selectedCustomListID = intent.getLongExtra("ID", 0)
+        if (selectedCustomListID == 0L) return
 
         animeAdapter.onLongPressListener = {
             AlertDialog.Builder(this)

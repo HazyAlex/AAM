@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
@@ -60,7 +57,8 @@ class MyAnimeFragment : Fragment() {
             spinner.adapter = ArrayAdapter(requireContext(),
                 android.R.layout.simple_spinner_item, availableColors.keys.toTypedArray())
 
-            AlertDialog.Builder(context).setTitle("Custom List")
+            AlertDialog.Builder(context)
+                .setTitle("Custom List")
                 .setView(view)
                 .setPositiveButton("OK") { _, _ ->
                     val selectedTitle = title.text.toString()
@@ -75,6 +73,30 @@ class MyAnimeFragment : Fragment() {
                 }.create().show()
         }
 
+        // Ask the user if they want to delete the item on a long press
+        mAdapter.onLongPressListener = {
+            AlertDialog.Builder(activity)
+                .setTitle("Do you want to remove this list?")
+                .setPositiveButton("OK") { _, _ ->
+                    // We need the ID of the custom list so we can remove it from the database,
+                    //  and we also need the index of the item so we that we can remove it from the view.
+                    val textView = it?.findViewById(R.id.item_text) as TextView
+                    val customListID = textView.tag as Long
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val deletedRows = AnimeDB.getInstance(requireContext())
+                            .customListDAO()
+                            .delete(customListID)
+
+                        if (deletedRows > 0) {
+                            mAdapter.remove(customListID)
+                        }
+                    }
+                }.create().show()
+
+            true // Return true if it was handled correctly
+        }
+
         return root
     }
 
@@ -83,9 +105,11 @@ class MyAnimeFragment : Fragment() {
         val list = CustomList(title = selectedTitle, color = selectedColor)
 
         CoroutineScope(Dispatchers.IO).launch {
-            AnimeDB.getInstance(requireContext()).customListDAO().insert(list)
-        }
+            list.customListID = AnimeDB.getInstance(requireContext())
+                .customListDAO()
+                .insert(list)
 
-        mAdapter.add(list)
+            mAdapter.add(list)
+        }
     }
 }

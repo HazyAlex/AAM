@@ -13,7 +13,7 @@ val availableColors: Map<String, Int> = hashMapOf(
 @Entity
 data class CustomList(
     @PrimaryKey(autoGenerate = true)
-    val customListID: Int = 0,
+    var customListID: Long = 0,
 
     val title: String,
     val color: String,
@@ -22,7 +22,7 @@ data class CustomList(
 
 @Entity(primaryKeys = ["customListID", "anime_id"])
 data class CustomListAnimeCross(
-    val customListID: Int,
+    val customListID: Long,
 
     @ColumnInfo(name = "anime_id")
     val animeID: Long,

@@ -7,26 +7,26 @@ import ml.hazyalex.aam.model.*
 @Dao
 interface CustomListDAO {
     @Insert
-    fun insert(list: CustomList)
+    fun insert(list: CustomList): Long
 
     @Transaction
     @Query("DELETE FROM customlist WHERE customListID = :customListID")
-    fun delete(customListID: Int): Int
+    fun delete(customListID: Long): Int
 
     @Transaction
     @Query("DELETE FROM customlistanimecross WHERE customListID = :customListID AND anime_id = :animeID")
-    fun deleteAnime(customListID: Int, animeID: Long): Int
+    fun deleteAnime(customListID: Long, animeID: Long): Int
 
     @Query("SELECT * FROM customlist")
     fun getAll(): List<CustomList>
 
     @Transaction
     @Query("SELECT EXISTS(SELECT 1 FROM customlistanimecross WHERE customListID = :customListID AND anime_id = :animeID)")
-    fun exists(customListID: Int, animeID: Long): Boolean
+    fun exists(customListID: Long, animeID: Long): Boolean
 
     @Transaction
     @Query("SELECT * FROM customlist WHERE customListID = :customListID")
-    fun getCustomListWithAnime(customListID: Int): CustomListWithAnime?
+    fun getCustomListWithAnime(customListID: Long): CustomListWithAnime?
 
     @Insert
     fun insert(join: CustomListAnimeCross)

@@ -8,7 +8,6 @@
     <string name="type">Type</string>
     <string name="synopsis">Synopsis</string>
     <string name="title">Title</string>
-    <string name="button_add_to_list">Add to list</string>
     <string name="title_japanese">Title Japanese</string>
     <string name="status">Status</string>
     <string name="rating">Rating</string>
@@ -16,6 +15,8 @@
     <string name="news_year">Year:</string>
     <string name="news_season">Season:</string>
     <string name="genres">Genres</string>
+    <string name="button_add_to_list">Add to list</string>
+    <string name="button_remove_from_list">Remove</string>
     <string name="show_adult_content">Show Adult Content</string>
     <string name="image_quality">Image Quality</string>
     <string name="metered_network">Metered Network</string>

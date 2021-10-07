@@ -1,7 +1,5 @@
 package ml.hazyalex.aam.ui.adapter
 
-import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
@@ -12,11 +10,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import ml.hazyalex.aam.R
-import ml.hazyalex.aam.database.AnimeDB
 import ml.hazyalex.aam.model.Anime
 import ml.hazyalex.aam.model.Settings
 import ml.hazyalex.aam.model.loadImageCentered
@@ -109,7 +103,7 @@ class MasonryAdapter(
 
     override fun getItemCount(): Int {
         if (ids.size != titles.size || ids.size != images.size) {
-            Log.d("MASONRY_ADAPTER", "Different sizes! Some information might be lost.")
+            Log.d("AAM", "MASONRY_ADAPTER - Different sizes! Some information might be lost.")
         }
 
         return ids.size

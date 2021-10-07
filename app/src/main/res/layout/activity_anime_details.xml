@@ -210,6 +210,16 @@
                 android:onClick="addToList"
                 android:text="@string/button_add_to_list" />
 
+            <Button
+                android:id="@+id/removeFromList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:elevation="10dp"
+                android:onClick="addToList"
+                android:text="@string/button_remove_from_list"
+                android:visibility="invisible" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
