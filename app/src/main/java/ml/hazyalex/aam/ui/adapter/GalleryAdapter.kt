@@ -1,6 +1,5 @@
 package ml.hazyalex.aam.ui.adapter
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Rect
 import android.util.Log
@@ -10,13 +9,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import ml.hazyalex.aam.R
-import ml.hazyalex.aam.database.AnimeDB
 import ml.hazyalex.aam.model.CustomList
-import ml.hazyalex.aam.model.availableColors
+import ml.hazyalex.aam.model.CustomList.Companion.availableColors
 import ml.hazyalex.aam.ui.CustomListActivity
 
 
@@ -29,35 +24,35 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
 
 
     fun add(list: CustomList) {
-        colors.add(list.color)
-        titles.add(list.title)
-        customListIDs.add(list.customListID)
-
         activity?.runOnUiThread {
+            colors.add(list.color)
+            titles.add(list.title)
+            customListIDs.add(list.customListID)
+
             notifyItemInserted(customListIDs.size)
         }
     }
 
     fun add(list: List<CustomList>) {
-        list.forEach {
-            colors.add(it.color)
-            titles.add(it.title)
-            customListIDs.add(it.customListID)
-        }
-
         activity?.runOnUiThread {
+            list.forEach {
+                colors.add(it.color)
+                titles.add(it.title)
+                customListIDs.add(it.customListID)
+            }
+
             notifyItemRangeInserted(0, list.size)
         }
     }
 
     fun remove(customListID: Long) {
-        val index = customListIDs.indexOf(customListID)
-
-        colors.removeAt(index)
-        titles.removeAt(index)
-        customListIDs.removeAt(index)
-
         activity?.runOnUiThread {
+            val index = customListIDs.indexOf(customListID)
+
+            colors.removeAt(index)
+            titles.removeAt(index)
+            customListIDs.removeAt(index)
+
             notifyItemRemoved(index)
         }
     }
@@ -72,7 +67,7 @@ class GalleryAdapter(private val activity: FragmentActivity?) : RecyclerView.Ada
 
         layoutView.setOnClickListener {
             val textView = it.findViewById(R.id.item_text) as TextView
-            val customListID = customListIDs[textView.tag as Int]
+            val customListID = textView.tag as Long
 
             val intent = Intent(activity?.applicationContext, CustomListActivity::class.java)
             intent.putExtra("ID", customListID)

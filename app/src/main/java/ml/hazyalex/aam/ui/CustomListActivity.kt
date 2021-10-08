@@ -38,9 +38,7 @@ class CustomListActivity : AppCompatActivity() {
                 .setTitle("Do you want to remove this entry?")
                 .setPositiveButton("OK") { _, _ ->
                     val textView = it?.findViewById(R.id.item_text) as TextView
-                    val index = textView.tag as Int
-
-                    val animeID = animeAdapter.getID(index)
+                    val animeID = textView.tag as Long
 
                     CoroutineScope(Dispatchers.IO).launch {
                         val deletedRows = AnimeDB.getInstance(applicationContext)
@@ -48,7 +46,7 @@ class CustomListActivity : AppCompatActivity() {
                             .deleteAnime(selectedCustomListID, animeID)
 
                         if (deletedRows > 0) {
-                            animeAdapter.remove(it, index)
+                            animeAdapter.remove(it, animeID)
                         }
                     }
                 }.create().show()

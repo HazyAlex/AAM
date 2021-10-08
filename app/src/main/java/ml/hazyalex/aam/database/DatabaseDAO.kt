@@ -10,8 +10,16 @@ interface CustomListDAO {
     fun insert(list: CustomList): Long
 
     @Transaction
+    fun delete(customListID: Long): Int {
+        deleteCustomListWithAnime(customListID)
+        return deleteCustomListID(customListID)
+    }
+
     @Query("DELETE FROM customlist WHERE customListID = :customListID")
-    fun delete(customListID: Long): Int
+    fun deleteCustomListID(customListID: Long): Int
+
+    @Query("DELETE FROM customlistanimecross WHERE customListID = :customListID")
+    fun deleteCustomListWithAnime(customListID: Long): Int
 
     @Transaction
     @Query("DELETE FROM customlistanimecross WHERE customListID = :customListID AND anime_id = :animeID")
@@ -23,6 +31,10 @@ interface CustomListDAO {
     @Transaction
     @Query("SELECT EXISTS(SELECT 1 FROM customlistanimecross WHERE customListID = :customListID AND anime_id = :animeID)")
     fun exists(customListID: Long, animeID: Long): Boolean
+
+    @Transaction
+    @Query("SELECT * FROM customlist WHERE customListID NOT IN (SELECT DISTINCT customListID FROM customlistanimecross WHERE anime_id = :animeID)")
+    fun listsWithoutAnime(animeID: Long): List<CustomList>
 
     @Transaction
     @Query("SELECT * FROM customlist WHERE customListID = :customListID")

@@ -27,25 +27,33 @@ class MasonryAdapter(
 
 
     fun add(activity: FragmentActivity?, anime: List<Anime>) {
-        anime.forEach {
-            val canSeeAdultContent = Settings.getInstance(context).showAdultContent
+        assert(ids.size == 0)
+        assert(titles.size == 0)
+        assert(images.size == 0)
 
-            val isAdult = it.adult != null && it.adult
-            val hasAdultRating = it.rating != null && it.rating.contains("Rx")
+        val canSeeAdultContent = Settings.getInstance(context).showAdultContent
 
-            if (!canSeeAdultContent && (isAdult || hasAdultRating)) {
-                return@forEach
+        activity?.runOnUiThread {
+            anime.forEach {
+                val isAdult = it.adult != null && it.adult
+                val hasAdultRating = it.rating != null && it.rating.contains("Rx")
+
+                if (!canSeeAdultContent && (isAdult || hasAdultRating)) {
+                    return@forEach
+                }
+
+                titles.add(it.title)
+                images.add(it.image_url)
+                ids.add(it.idMyAnimeList)
             }
 
-            titles.add(it.title)
-            images.add(it.image_url)
-            ids.add(it.idMyAnimeList)
+            notifyItemRangeInserted(0, anime.size)
         }
-
-        refresh(activity)
     }
 
-    fun remove(view: View, index: Int) {
+    fun remove(view: View, animeID: Long) {
+        val index = ids.indexOf(animeID)
+
         ids.removeAt(index)
         titles.removeAt(index)
         images.removeAt(index)
@@ -60,15 +68,11 @@ class MasonryAdapter(
     }
 
     fun clearUI(activity: FragmentActivity?) {
-        titles.clear()
-        images.clear()
-        ids.clear()
-
-        refresh(activity)
-    }
-
-    private fun refresh(activity: FragmentActivity?) {
         activity?.runOnUiThread {
+            titles.clear()
+            images.clear()
+            ids.clear()
+
             notifyDataSetChanged()
         }
     }
@@ -79,7 +83,7 @@ class MasonryAdapter(
 
         layoutView.setOnClickListener {
             val textView = it.findViewById(R.id.item_text) as TextView
-            val animeID = ids[textView.tag as Int].or(0)
+            val animeID = textView.tag as Long
 
             val intent = Intent(context, AnimeDetailsActivity::class.java)
             intent.putExtra("ID", animeID)
@@ -96,8 +100,7 @@ class MasonryAdapter(
     override fun onBindViewHolder(holder: ItemView, position: Int) {
         loadImageCentered(images[position], holder.imageView, context)
 
-        // Set the tag so we can later grab the ID
-        holder.textView.tag = position
+        holder.textView.tag = ids[position]
         holder.textView.text = titles[position]
     }
 

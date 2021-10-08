@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import ml.hazyalex.aam.R
 import ml.hazyalex.aam.database.AnimeDB
 import ml.hazyalex.aam.model.CustomList
-import ml.hazyalex.aam.model.availableColors
+import ml.hazyalex.aam.model.CustomList.Companion.availableColors
 import ml.hazyalex.aam.ui.adapter.GalleryAdapter
 import ml.hazyalex.aam.ui.adapter.MarginItemDecoration
 

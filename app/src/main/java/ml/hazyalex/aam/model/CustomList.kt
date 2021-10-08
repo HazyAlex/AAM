@@ -4,12 +4,6 @@ import androidx.room.*
 import ml.hazyalex.aam.R
 
 
-val availableColors: Map<String, Int> = hashMapOf(
-    "Black" to R.color.Black, "White" to R.color.White,
-    "Red" to R.color.Red, "Green" to R.color.Green, "Blue" to R.color.Blue
-)
-
-
 @Entity
 data class CustomList(
     @PrimaryKey(autoGenerate = true)
@@ -17,7 +11,15 @@ data class CustomList(
 
     val title: String,
     val color: String,
-)
+) {
+    companion object {
+        // The colors that are available to the user when they are creating a custom list.
+        val availableColors: Map<String, Int> = hashMapOf(
+            "Black" to R.color.Black, "White" to R.color.White,
+            "Red" to R.color.Red, "Green" to R.color.Green, "Blue" to R.color.Blue
+        )
+    }
+}
 
 
 @Entity(primaryKeys = ["customListID", "anime_id"])

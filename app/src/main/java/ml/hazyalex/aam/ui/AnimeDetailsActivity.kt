@@ -24,8 +24,7 @@ import java.io.IOException
 
 class AnimeDetailsActivity : AppCompatActivity() {
     private var selectedAnimeID: Long = 0
-    private lateinit var customLists: List<CustomList>
-    private lateinit var customListTitles: Array<String>
+    private lateinit var customLists: MutableList<CustomList>
 
     // UI
     private val unknownField: String = "Unknown"
@@ -42,7 +41,14 @@ class AnimeDetailsActivity : AppCompatActivity() {
             selectedAnimeID = intent.getLongExtra("ID", 0L)
             val selectedAnime = AnimeDB.getInstance(application).animeDAO().getAnime(selectedAnimeID)
 
-            // If we don't have a record of the anime or if it's not updated, update it
+            // Get the lists that don't have this anime inside, so we can show them in the UI.
+            val lists = AnimeDB.getInstance(application)
+                .customListDAO()
+                .listsWithoutAnime(selectedAnimeID)
+
+            customLists = MutableList(lists.size, init = {lists[it] })
+
+            // If we don't have a record of the anime in the DB or if it hasn't been updated with the extra information, update it
             if (selectedAnime == null || !selectedAnime.updated) {
                 getAnimeDetails(selectedAnime?.season_name, selectedAnime?.season_year)
                 return@launch
@@ -52,46 +58,12 @@ class AnimeDetailsActivity : AppCompatActivity() {
             Log.d("AAM", "DETAILS_ANIME_ACTIVITY - SHOWING CACHED VERSION")
             addToUI(selectedAnime)
         }
-
-        CoroutineScope(Dispatchers.Default).launch {
-            customLists = AnimeDB.getInstance(applicationContext).customListDAO().getAll()
-            customListTitles = Array(customLists.size, init = { customLists[it].title })
-        }
-    }
-
-    private fun setVisibleWith(id: Int, text: String) {
-        val textView = findViewById<TextView>(id) ?: error("not found.")
-        textView.text = text
-        textView.visibility = View.VISIBLE
-    }
-
-    private fun setLayoutVisible() {
-        findViewById<ConstraintLayout>(R.id.anime_details_loading).visibility = View.INVISIBLE
-        findViewById<LinearLayout>(R.id.anime_details_layout).visibility = View.VISIBLE
-        findViewById<AppBarLayout>(R.id.anime_details_app_bar).visibility = View.VISIBLE
-    }
-
-    private fun addToUI(anime: Anime) {
-        runOnUiThread {
-            val header = findViewById<ImageView>(R.id.header)
-            loadImage(anime.image_url, header, applicationContext)
-
-            setVisibleWith(R.id.anime_details_title, anime.title)
-            setVisibleWith(R.id.anime_details_status, anime.status ?: "")
-            setVisibleWith(R.id.anime_details_title_japanese, anime.title_japanese ?: "")
-            setVisibleWith(R.id.anime_details_synopsis, anime.synopsis ?: unknownSynopsis)
-            setVisibleWith(R.id.anime_details_episodes, anime.episodes?.toString() ?: unknownField)
-            setVisibleWith(R.id.anime_details_source, anime.source ?: unknownField)
-            setVisibleWith(R.id.anime_details_type, anime.type ?: unknownField)
-            setVisibleWith(R.id.anime_details_rating, anime.rating ?: unknownField)
-            setVisibleWith(R.id.anime_details_genres, anime.genres ?: unknownField)
-
-            setLayoutVisible()
-        }
     }
 
     fun addToList(view: View) {
-        if (customListTitles.isEmpty()) {
+        val titles = Array(customLists.size, init = { customLists[it].title })
+
+        if (titles.isEmpty()) {
             AlertDialog.Builder(view.context)
                 .setTitle("There are no custom lists available.")
                 .setMessage("") // So we can have some padding below the title
@@ -101,7 +73,7 @@ class AnimeDetailsActivity : AppCompatActivity() {
 
         AlertDialog.Builder(view.context)
             .setTitle("Add Anime to List")
-            .setItems(customListTitles) { _, position: Int ->
+            .setItems(titles) { _, position: Int ->
                 CoroutineScope(Dispatchers.Default).launch {
                     val selectedListID = customLists[position].customListID
 
@@ -120,6 +92,8 @@ class AnimeDetailsActivity : AppCompatActivity() {
                     AnimeDB.getInstance(view.context).customListDAO().insert(
                         CustomListAnimeCross(selectedListID, selectedAnimeID)
                     )
+
+                    customLists.removeAt(position)
 
                     runOnUiThread {
                         Toast.makeText(view.context, "Added successfully!", Toast.LENGTH_LONG).show()
@@ -159,5 +133,37 @@ class AnimeDetailsActivity : AppCompatActivity() {
                 addToUI(anime)
             }
         })
+    }
+
+    private fun addToUI(anime: Anime) {
+        runOnUiThread {
+            val header = findViewById<ImageView>(R.id.header)
+            loadImage(anime.image_url, header, applicationContext)
+
+            setVisibleWith(R.id.anime_details_title, anime.title)
+            setVisibleWith(R.id.anime_details_status, anime.status ?: "")
+            setVisibleWith(R.id.anime_details_title_japanese, anime.title_japanese ?: "")
+            setVisibleWith(R.id.anime_details_synopsis, anime.synopsis ?: unknownSynopsis)
+            setVisibleWith(R.id.anime_details_episodes, anime.episodes?.toString() ?: unknownField)
+            setVisibleWith(R.id.anime_details_source, anime.source ?: unknownField)
+            setVisibleWith(R.id.anime_details_type, anime.type ?: unknownField)
+            setVisibleWith(R.id.anime_details_rating, anime.rating ?: unknownField)
+            setVisibleWith(R.id.anime_details_genres, anime.genres ?: unknownField)
+
+            setLayoutVisible()
+        }
+    }
+
+
+    private fun setVisibleWith(id: Int, text: String) {
+        val textView = findViewById<TextView>(id) ?: error("not found.")
+        textView.text = text
+        textView.visibility = View.VISIBLE
+    }
+
+    private fun setLayoutVisible() {
+        findViewById<ConstraintLayout>(R.id.anime_details_loading).visibility = View.INVISIBLE
+        findViewById<LinearLayout>(R.id.anime_details_layout).visibility = View.VISIBLE
+        findViewById<AppBarLayout>(R.id.anime_details_app_bar).visibility = View.VISIBLE
     }
 }
