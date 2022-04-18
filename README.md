@@ -9,6 +9,7 @@ Uses the Jikan API and aggressively caches every bit of data.
  - Anime details
  - Custom lists (with a title and color, to add an anime to it simply select which list you want to add it to in the details page)
  - Settings (only use WiFi, show adult content, preview image quality)
+ - You can use it offline - no accounts required! (The data is stored in your device)
 
 ## Showcase
 
